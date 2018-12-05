@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<block>
+  <name>usb_source</name>
+  <key>usb_source_usb_source</key>
+  <category>Misc</category>
+  <import>import usb_source</import>
+  <make>usb_source.usb_source($device, $parity, $baudrate, $stopbits, $bytesize, $wait_for_newline)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>device</name>
+    <key>device</key>
+    <type>string</type>
+  </param>
+  
+  <param>
+    <name>parity</name>
+    <key>parity</key>
+    <type>int</type>
+    <option>
+        <name>NONE</name>
+        <key>0</key>
+    </option>
+    <option>
+        <name>EVEN</name>
+        <key>1</key>
+    </option>
+    <option>        
+        <name>ODD</name>
+        <key>2</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Baudrate</name>
+    <key>baudrate</key>
+    <type>int</type>
+  </param>
+  
+  <param>
+    <name>Stopbits</name>
+    <key>stopbits</key>
+    <type>int</type>
+    <option>
+        <name>ONE</name>
+        <key>0</key>
+    </option>
+    <option>
+        <name>TWO</name>
+        <key>1</key>
+    </option>
+  </param>
+  
+  <param>
+    <name>Bytesize</name>
+    <key> bytesize</key>
+    <type>int</type>
+    <option>
+        <name>7</name>
+        <key>0</key>
+    </option>
+    <option>
+        <name>8</name>
+        <key>1</key>
+    </option>
+  </param>
+  
+  <param>
+    <name>wait_for_newline</name>
+    <key>wait_for_newline</key>
+    <type>bool/type>
+    <option>
+        <name>Yes</name>
+        <key>True</key>
+    </option>
+    <option>
+        <name>No</name>
+        <key>False</key>
+    </option>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+  </source>
+</block>
