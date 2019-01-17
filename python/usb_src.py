@@ -24,18 +24,19 @@ from gnuradio import gr
 #import ring_buffer as rb
 from threading import Thread
 from threading import Lock
+import serial
 
 BUFF_SIZE = 1024
 
-class usb_source(gr.sync_block):
+class usb_src(gr.sync_block):
     """
-    docstring for block usb_source
+    docstring for block usb_src
     """
     def __init__(self, device,parity,baudrate,stopbits,bytesize,wait_for_newline):
         gr.sync_block.__init__(self,
-            name="usb_source",
+            name="usb_src",
             in_sig=None,
-            out_sig=[numpy.float32])
+            out_sig=[numpy.int32])
         ''' 
         self.mgr = pmt.pmt_mgr()
         for i in range(64):
@@ -48,22 +49,23 @@ class usb_source(gr.sync_block):
         self.stopbits = stopbits
         self.bytesize = bytesize
         self.wait_for_newline = wait_for_newline
+        print(device,parity, baudrate, stopbits, bytesize, wait_for_newline)
         
         #set parity
         
-        if self.parity == NONE:
+        if self.parity == 0:
             self.parity = serial.PARITY_NONE
-        elif self.parity == EVEN:
+        elif self.parity == 1:
             self.parity = serial.PARITY_EVEN
         else:
             self.parity = serial.PARITY_ODD
         
-        if self.stopbits == STOPBITS_ONE:
+        if self.stopbits == 1:
             self.stopbits = serial.STOPBITS_ONE
-        elif self.stopbits == STOPBITS_TWO:
+        elif self.stopbits == 2:
             self.stopbits = serial.STOPBITS_TWO
         
-        if self.bytesize == WORD_SIZE_7:
+        if self.bytesize == 7:
             self.bytesize = serial.SEVENBITS
         else:
             self.bytesize = serial.EIGHTBITS
@@ -74,19 +76,19 @@ class usb_source(gr.sync_block):
             baudrate=self.baudrate,
             parity=self.parity,
             stopbits=self.stopbits,
-            bytesize=self.bytesize
+            bytesize=self.bytesize,
+            timeout=2
         )
     
-        try:
-            #write_thread = Thread(target=work_fn, args=(buff, buff_lock, ser))
-            read_thread = Thread(target=rx_work, args=(buff,buff_lock, ser))
-        except:
-            print("failed to create thread")
         
         ## Buffer and lock
         #self.rbuff = rb.ring_buffer(BUFF_SIZE)
         self.buff_lock = Lock()
-        self.buff = [None]
+        self.buff = [0]
+
+        #write_thread = Thread(target=work_fn, args=(buff, buff_lock, ser))
+        read_thread = Thread(target=self.rx_work, args=(self.buff, self.buff_lock, self.ser))
+        read_thread.start()
 
         '''
         self.ser = serial.Serial(
@@ -109,7 +111,7 @@ class usb_source(gr.sync_block):
     # @buff buffer to read into.
     # @buff_lock lock to serialize buffer access. Should be the lock from "threadding" package.
     # @ser instance of the serial class.
-    def rx_work(self, rbuff, rbuff_lock, ser):
+    def rx_work(self, buff, buff_lock, ser):
         """
         Lock mutex
             read from the serial port. ----?? how much data to be read.
@@ -117,22 +119,27 @@ class usb_source(gr.sync_block):
             mark underflow or overflow if any. 
         Unlock mutex
         """
+        print("rx_work started")
         while(1):
+            ## Need to raise a non fatal exception. 
+            #raise IOvrror("Serial port is not open")
             if(ser.is_open == False):
-                ## Need to raise a non fatal exception. 
-                #raise IOError("Serial port is not open")
                 continue
+            
             """    
             if(self.wait_for_newline):
                 line = ser.readline()
             else:
                 line = ser.read()
             """
-            tmp_buff = ser.read(BUFF_SIZE)
-            bytes_read = len(buff)
+            tmp_buff = []
+            tmp_buff = ser.read(1024)
+            print(tmp_buff[0])
+            bytes_read = len(tmp_buff)
+            print (bytes_read)
 
-            with self.buff_lock():
-                self.buff = tmp_buff[:]
+            with buff_lock:
+                buff = tmp_buff[:]
                 
 
     def work(self, input_items, output_items):
@@ -145,5 +152,7 @@ class usb_source(gr.sync_block):
         with self.buff_lock:
             # copy from buff to output_items
             out[:] = self.buff[:]
+        print("buff_lock released")
+        print(out[:])
         return len(output_items[0])
 

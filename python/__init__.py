@@ -23,13 +23,13 @@ This is the GNU Radio USB_SRC module. Place your Python package
 description here (python/__init__.py).
 '''
 
-# import swig generated symbols into the usb_source namespace
+# import swig generated symbols into the usb_src namespace
 try:
 	# this might fail if the module is python-only
-	from usb_source_swig import *
+	from usb_src_swig import *
 except ImportError:
 	pass
 
 # import any pure python here
-from usb_source import usb_source
+from usb_src import usb_src
 #

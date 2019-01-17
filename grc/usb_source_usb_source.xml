@@ -71,7 +71,7 @@
   <param>
     <name>wait_for_newline</name>
     <key>wait_for_newline</key>
-    <type>bool/type>
+    <type>bool</type>
     <option>
         <name>Yes</name>
         <key>True</key>
@@ -99,6 +99,6 @@
        * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>int</type>
   </source>
 </block>
